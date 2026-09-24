@@ -1,0 +1,16 @@
+/* Unicode-only alias leaves Latin glyphs in the normal UI/code fallback. */
+@font-face {
+  font-family: "MyanmarFontFix";
+  src: local("Pyidaungsu"), local("Myanmar Text"), local("Noto Sans Myanmar");
+  unicode-range: U+1000-109F, U+A9E0-A9FF, U+AA60-AA7F;
+}
+html, body, p, span:not([class*="icon"]), div:not([class*="icon"]),
+input, textarea, select, button, label, li, td, th, a, h1, h2, h3, h4,
+[contenteditable="true"], [role="textbox"] {
+  font-family: "MyanmarFontFix", "Segoe UI", system-ui, sans-serif !important;
+  font-variant-ligatures: normal;
+}
+pre, pre *, code, code *, kbd, samp, .monaco-editor, .monaco-editor *, .xterm, .xterm * {
+  font-family: "MyanmarFontFix", "Cascadia Mono", Consolas, monospace !important;
+}
+/* Existing icon fonts must not be rewritten. SVG/canvas are untouched. */

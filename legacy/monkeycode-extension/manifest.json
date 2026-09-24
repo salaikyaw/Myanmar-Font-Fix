@@ -1,0 +1,20 @@
+{
+  "manifest_version": 3,
+  "name": "SK MonkeyCode Pyidaungsu Font",
+  "version": "1.0.0",
+  "description": "Use Pyidaungsu for Myanmar text in MonkeyCode and WebView2 apps.",
+  "content_scripts": [
+    {
+      "matches": [
+        "http://*/*",
+        "https://*/*",
+        "http://tauri.localhost/*",
+        "https://tauri.localhost/*",
+        "file://*/*"
+      ],
+      "js": ["content.js"],
+      "run_at": "document_start",
+      "all_frames": true
+    }
+  ]
+}

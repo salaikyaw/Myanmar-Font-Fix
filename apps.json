@@ -1,0 +1,12 @@
+[
+  {"id":"freebuff","name":"Freebuff","engine":"electron","exe":"%LOCALAPPDATA%\\Programs\\@codebufffreebuff-desktop\\Freebuff.exe","port":19431},
+  {"id":"autoclaw","name":"AutoClaw","engine":"electron","exe":"%ProgramFiles%\\AutoClaw\\AutoClaw.exe","port":19432},
+  {"id":"gensparkclaw","name":"Genspark Claw","engine":"electron","exe":"%ProgramFiles%\\Genspark Claw\\Genspark Claw.exe","port":19433},
+  {"id":"factory","name":"Factory","engine":"electron","exe":"%LOCALAPPDATA%\\Factory\\factory-desktop.exe","port":19434},
+  {"id":"hermes","name":"Hermes Desktop","engine":"electron","exe":"%LOCALAPPDATA%\\hermes\\hermes-agent\\apps\\desktop\\release\\win-unpacked\\Hermes.exe","port":19435},
+  {"id":"lmstudio","name":"LM Studio","engine":"electron","exe":"%ProgramFiles%\\LM Studio\\LM Studio.exe","port":19436},
+  {"id":"openworker","name":"OpenWorker","engine":"webview2","exe":"%LOCALAPPDATA%\\OpenWorker\\openworker-desktop.exe","port":19437},
+  {"id":"anythingllm","name":"AnythingLLM","engine":"electron","exe":"%LOCALAPPDATA%\\Programs\\AnythingLLM\\AnythingLLM.exe","port":19438},
+  {"id":"kimi","name":"Kimi","engine":"electron","exe":"%LOCALAPPDATA%\\Programs\\kimi-desktop\\Kimi.exe","port":19439,"primaryOrigins":["https://www.kimi.com"]},
+  {"id":"qoder","name":"Qoder","engine":"electron","exe":"%ProgramFiles%\\Qoder\\Qoder\\Qoder.exe","port":19440,"primaryOrigins":["qoder-app://renderer"]}
+]

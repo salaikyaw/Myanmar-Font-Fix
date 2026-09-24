@@ -1,0 +1,13 @@
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const path=require('node:path');
+const apps=JSON.parse(fs.readFileSync(path.join(__dirname,'apps.json'),'utf8'));
+assert.equal(apps.length,10);
+assert.equal(new Set(apps.map(a=>a.id)).size,10);
+assert.equal(new Set(apps.map(a=>a.port)).size,10);
+const origin=u=>{const p=new URL(u);return p.protocol+'//'+p.host};
+assert(apps.find(a=>a.id==='kimi').primaryOrigins.includes(origin('https://www.kimi.com/')));
+assert(apps.find(a=>a.id==='qoder').primaryOrigins.includes(origin('qoder-app://renderer/index.html')));
+assert(!apps.find(a=>a.id==='kimi').primaryOrigins.includes(origin('https://accounts.google.com/')));
+assert(!apps.some(a=>a.primaryOrigins?.some(o=>o.includes('*'))));
+console.log('PASS: app identity, unique ports, exact Kimi/Qoder origins, no wildcard auth-page injection');
