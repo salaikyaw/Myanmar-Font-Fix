@@ -45,7 +45,7 @@ try {
     else {
       $flags="--remote-debugging-address=127.0.0.1 --remote-debugging-port=$($cfg.port)"
       if($cfg.engine -eq 'webview2'){
-        # OpenWorker clears inherited arguments; use ONLY its executable policy.
+        # Some WebView2/Tauri apps clear inherited arguments; use the executable policy as well.
         $policy='HKCU:\Software\Policies\Microsoft\Edge\WebView2\AdditionalBrowserArguments'
         $valueName=[IO.Path]::GetFileName($exe)
         $prior=Get-ItemProperty -LiteralPath $policy -Name $valueName -ErrorAction SilentlyContinue

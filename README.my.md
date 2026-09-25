@@ -3,8 +3,8 @@
 ## အသုံးပြုနည်း
 
 - Desktop ပေါ်က **Run-Repair-Font** ကိုဖွင့်ပါ။
-- **I**: App အသစ် ၁၀ ခုအတွက် Pyidaungsu shortcut ထည့်/ပြန်ပြင်ရန်။ App မပိတ်ပါ။
-- **1–10**: သက်ဆိုင်ရာ app ကို Pyidaungsu နဲ့ ဖွင့်ရန်။ အရင်ဖွင့်ထားလျှင် save လုပ်ပြီး tray မှ Exit လုပ်ထားရပါမယ်။
+- **I**: App အသစ် ၁၁ ခုအတွက် Pyidaungsu shortcut ထည့်/ပြန်ပြင်ရန်။ App မပိတ်ပါ။
+- **1–11**: သက်ဆိုင်ရာ app ကို Pyidaungsu နဲ့ ဖွင့်ရန်။ အရင်ဖွင့်ထားလျှင် save လုပ်ပြီး tray မှ Exit လုပ်ထားရပါမယ်။
 - **T**: CMD/PowerShell အတွက် Myanmar Windows Terminal profile နှစ်ခုထည့်ရန်။
 - **L**: အရင်ကရှိပြီးသား app များ၏ legacy repair menu။ အချို့ option က app ပိတ်တတ်လို့ အလုပ်အရင်သိမ်းပါ။
 - **D**: OpenCode / Desktop Commander font + tray repair အဟောင်း။
@@ -13,7 +13,7 @@
 
 Menu အားလုံးကို `↑/↓` နဲ့ရွေးပြီး `Enter` နှိပ်နိုင်သလို မူလ နံပါတ်/အက္ခရာ + `Enter` နည်းလည်း ဆက်သုံးနိုင်ပါတယ်။ ရွေးထားတဲ့လိုင်းကို အဝါရောင်နဲ့ပြပါတယ်။ Main menu မှာ `Esc` က Quit ဖြစ်ပြီး Legacy/Manual submenu မှာ `Esc` က Back ဖြစ်ပါတယ်။ Action ပြီးရင် လက်ရှိ menu ကိုပြန်ရောက်ပြီး `Q` နဲ့ collection တစ်ခုလုံးထွက်နိုင်ပါတယ်။ Legacy Manual ထဲက `A` သည် app အားလုံး patch လုပ်ပြီး `M` သည် `1,3,8` ပုံစံနဲ့ app အများကြီးရွေးနိုင်ပါတယ်။
 
-App အသစ်များ: Freebuff, AutoClaw, Genspark Claw, Factory, Hermes Desktop, LM Studio, OpenWorker, AnythingLLM, Kimi, Qoder.
+App အသစ်များ: Freebuff, AutoClaw, Genspark Claw, Factory, Hermes Desktop, LM Studio, OpenWorker, AnythingLLM, Kimi, Qoder, MDHero.
 
 ## Update ပြီးရင်
 
@@ -36,6 +36,6 @@ Repo ကို မိမိနှစ်သက်ရာ writable folder ထဲ cl
 
 CLI မှာ UTF-8 မှန်တာနဲ့ glyph ပုံဖော်မှု မှန်တာ မတူပါဘူး။ Pyidaungsu က proportional font ဖြစ်လို့ CLI table/cursor spacing အချို့ မညီနိုင်ပါသေးတယ်။ Codex CLI နဲ့ အခြား CLI အားလုံးကို စာပုံဖော်မှုအပြည့်အဝ အာမမခံပါဘူး။
 
-OpenWorker တစ်ခုအတွက် executable-specific WebView2 policy ရှိပါတယ်။ ပြန်ဖြုတ်လိုလျှင် `Restore-OpenWorker-Policy.ps1` run ပြီး OpenWorker ကို အပြီးပိတ်/ပြန်ဖွင့်ပါ။ Browser/အခြား app တွေကို wildcard policy မသတ်မှတ်ပါဘူး။
+OpenWorker နဲ့ MDHero လို WebView2 app များအတွက် executable-specific policy သာသတ်မှတ်ပါတယ်။ Browser/အခြား app တွေကို wildcard policy မသတ်မှတ်ပါဘူး။
 
 Runtime backup၊ local status report၊ vendor dependency နဲ့ font binary တွေကို GitHub repo ထဲ မတင်ပါ။ Legacy repair အချို့က app ပိတ်ခြင်း၊ installed resource ပြင်ခြင်းနဲ့ Administrator permission လိုခြင်းရှိလို့ menu warning ကို ဖတ်ပြီးမှ run ပါ။ အသေးစိတ်နှင့် rollback ကို `README.md` မှာဖတ်နိုင်ပါတယ်။

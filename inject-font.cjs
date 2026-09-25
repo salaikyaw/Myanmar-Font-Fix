@@ -2,7 +2,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const [portText, app, stateDir] = process.argv.slice(2);
 const port = Number(portText);
-if (!Number.isInteger(port) || port < 19431 || port > 19440 || !/^[a-z]+$/.test(app)) throw Error('Invalid target');
+if (!Number.isInteger(port) || port < 19431 || port > 19441 || !/^[a-z]+$/.test(app)) throw Error('Invalid target');
 const css = fs.readFileSync(path.join(__dirname, 'font.css'), 'utf8');
 const appConfig=JSON.parse(fs.readFileSync(path.join(__dirname,'apps.json'),'utf8')).find(a=>a.id===app&&a.port===port);
 if(!appConfig)throw Error('App/port mismatch');

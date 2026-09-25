@@ -20,7 +20,7 @@ Windows app-local Pyidaungsu launchers, UTF-8 terminal profiles, and the existin
 6. Open the app using its **(Pyidaungsu)** shortcut. Subsequent launches use the current installed executable. Factory's versioned installation is rediscovered each time.
 7. Choose **S** for the last renderer verification. `READY` means installed, **not** visually verified. A successful CSS/font probe does not prove every conversation, embedded frame, canvas, or terminal surface renders correctly.
 
-New app entries: Freebuff, AutoClaw, Genspark Claw (not Genspark Browser), Factory, Hermes Desktop (not the setup app), LM Studio, OpenWorker, AnythingLLM, Kimi, Qoder.
+New app entries: Freebuff, AutoClaw, Genspark Claw (not Genspark Browser), Factory, Hermes Desktop (not the setup app), LM Studio, OpenWorker, AnythingLLM, Kimi, Qoder, MDHero.
 
 Kimi's main chat is hosted at `https://www.kimi.com`; only that exact origin is allowlisted for its app-owned debugging port. Its auxiliary local windows are excluded. The launcher never navigates to or reads browser profiles.
 
@@ -30,7 +30,7 @@ New launchers do not unpack/rewrite signed vendor archives, restore stale binari
 
 Use the Pyidaungsu shortcut after updates; ordinary vendor shortcuts bypass runtime injection. Runtime updates can still remove debugging support, change the renderer origin, or change installation paths. In that case the launcher must fail rather than claim success. See `apps.json` for locally verified installation paths.
 
-**Security:** a local debugging port grants control of the app to other processes running on this PC. Ports 19431–19440 must stay loopback-only; never port-forward or expose them. Only use these launchers on a trusted local machine. OpenWorker clears inherited flags, so its launcher additionally sets an **OpenWorker-executable-only** HKCU WebView2 policy, with a backup. This is not a wildcard or system-wide policy; however, ordinary OpenWorker launches also inherit that executable policy until restored. Remote login/web pages are deliberately excluded from CSS injection.
+**Security:** a local debugging port grants control of the app to other processes running on this PC. Ports 19431–19441 must stay loopback-only; never port-forward or expose them. Only use these launchers on a trusted local machine. WebView2 launchers additionally set an **executable-only** HKCU policy, with a backup. This is not a wildcard or system-wide policy; however, ordinary launches of that executable also inherit the policy until restored. Remote login/web pages are deliberately excluded from CSS injection.
 
 ## CMD / PowerShell / Codex CLI
 
@@ -50,7 +50,7 @@ There is no need to put another copy of the project under `scripts`; one launche
 
 ## Rollback
 
-For new app repairs: completely exit the app, then open its original vendor shortcut. No vendor files need restoring. For OpenWorker also run `Restore-OpenWorker-Policy.ps1` before reopening, to remove/restore its executable-specific debugging arguments. Remove only the generated Pyidaungsu shortcuts if no longer wanted. For terminal profiles: remove the dedicated `%LOCALAPPDATA%\Microsoft\Windows Terminal\Fragments\Myanmar-Font-Fix\profiles.json`, then restart Terminal. Existing shortcut backups are stored in the local backup folder. Legacy repairs have their own backup/restore behavior; read the specific script before use.
+For new app repairs: completely exit the app, then open its original vendor shortcut. No vendor files need restoring. For a WebView2 app, restore its executable-specific policy from `%LOCALAPPDATA%\Myanmar-Font-Fix\<app>-webview-policy-original.json` before reopening if full rollback is required. Remove only the generated Pyidaungsu shortcuts if no longer wanted. For terminal profiles: remove the dedicated `%LOCALAPPDATA%\Microsoft\Windows Terminal\Fragments\Myanmar-Font-Fix\profiles.json`, then restart Terminal. Existing shortcut backups are stored in the local backup folder. Legacy repairs have their own backup/restore behavior; read the specific script before use.
 
 ## Privacy and redistribution
 
