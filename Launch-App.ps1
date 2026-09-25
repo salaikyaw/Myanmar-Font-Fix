@@ -44,7 +44,7 @@ try {
     # Count only a top-level GUI instance. Updaters and Qoder's persistent daemon use the
     # same executable but do not own a renderer window and must not block a safe relaunch.
     $processes=@(Get-CimInstance Win32_Process -Filter ("Name='"+[IO.Path]::GetFileName($exe)+"'") | Where-Object {
-      $_.ExecutablePath -eq $exe -and $_.CommandLine -notmatch '\s--type=' -and $_.CommandLine -notmatch '\sdaemon-server(?:\s|$)'
+      $_.ExecutablePath -eq $exe -and $_.CommandLine -notmatch '\s--type=' -and $_.CommandLine -notmatch '\sdaemon-server(?:\s|$)' -and $_.CommandLine -notmatch '\.(?:c|m)?js(?:"|\s|$)'
     })
     $port=[int]$cfg.port
     $listener=@(Get-FontListeners $port)

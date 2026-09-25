@@ -16,7 +16,7 @@ Get-ChildItem $PSScriptRoot -Filter '*.ps1' | ForEach-Object {
 if($LASTEXITCODE){throw 'JavaScript syntax check failed'}
 $launcher=Get-Content (Join-Path $PSScriptRoot 'Launch-App.ps1') -Raw
 $injector=Get-Content (Join-Path $PSScriptRoot 'inject-font.cjs') -Raw
-if($launcher -notmatch '19500\.\.19599' -or $launcher -notmatch 'Test-ListenerOwner'){throw 'Safe fallback-port ownership logic missing'}
+if($launcher -notmatch '19500\.\.19599' -or $launcher -notmatch 'Test-ListenerOwner' -or $launcher -notmatch '\.\(\?:c\|m\)\?js'){throw 'Safe fallback-port ownership logic missing'}
 if($injector -notmatch 'port > 19599'){throw 'Injector fallback-port boundary missing'}
 & node (Join-Path $PSScriptRoot 'test-config.cjs')
 if($LASTEXITCODE){throw 'App-origin regression test failed'}
