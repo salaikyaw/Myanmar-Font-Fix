@@ -11,6 +11,19 @@ function Get-FontListeners([int]$Port) {
     }
   }
 }
+function Test-ListenerOwner($Listener,[string]$Exe,[bool]$WebView) {
+  $owner=Get-CimInstance Win32_Process -Filter "ProcessId=$($Listener.OwningProcess)" -ErrorAction SilentlyContinue
+  if(-not $owner){return $false}
+  if($owner.ExecutablePath -eq $Exe){return $true}
+  if($WebView){
+    $cursor=$owner
+    for($i=0;$i -lt 8 -and $cursor;$i++){
+      if($cursor.ExecutablePath -eq $Exe){return $true}
+      $cursor=Get-CimInstance Win32_Process -Filter "ProcessId=$($cursor.ParentProcessId)" -ErrorAction SilentlyContinue
+    }
+  }
+  return $false
+}
 try {
   $catalog=Get-Content (Join-Path $PSScriptRoot 'apps.json') -Raw | ConvertFrom-Json
   $cfg=$catalog | Where-Object id -eq $App
@@ -28,22 +41,38 @@ try {
   $mutex=[Threading.Mutex]::new($true,"Local\MyanmarFontFix-$App",[ref]$created)
   if(-not $created){$mutex.Dispose();exit 0}
   try {
-    $processes=@(Get-CimInstance Win32_Process -Filter ("Name='"+[IO.Path]::GetFileName($exe)+"'") | Where-Object {$_.ExecutablePath -eq $exe})
-    $listener=@(Get-FontListeners $cfg.port)
-    if($listener){
-      $owner=Get-CimInstance Win32_Process -Filter "ProcessId=$($listener[0].OwningProcess)"
-      $valid=($owner.ExecutablePath -eq $exe)
-      if($cfg.engine -eq 'webview2'){
-        $cursor=$owner
-        for($i=0;$i -lt 8 -and $cursor;$i++){
-          if($cursor.ExecutablePath -eq $exe){$valid=$true;break}
-          $cursor=Get-CimInstance Win32_Process -Filter "ProcessId=$($cursor.ParentProcessId)"
+    # Count only a top-level GUI instance. Updaters and Qoder's persistent daemon use the
+    # same executable but do not own a renderer window and must not block a safe relaunch.
+    $processes=@(Get-CimInstance Win32_Process -Filter ("Name='"+[IO.Path]::GetFileName($exe)+"'") | Where-Object {
+      $_.ExecutablePath -eq $exe -and $_.CommandLine -notmatch '\s--type=' -and $_.CommandLine -notmatch '\sdaemon-server(?:\s|$)'
+    })
+    $port=[int]$cfg.port
+    $listener=@(Get-FontListeners $port)
+    # A prior safe launch may have selected a fallback port because the configured port
+    # was orphaned. Reuse it only after proving that this exact app owns it on loopback.
+    $owned=$null
+    foreach($candidate in @($cfg.port)+(19500..19599)){
+      $candidateListeners=@(Get-FontListeners $candidate)
+      if($candidateListeners.Count -and -not @($candidateListeners | Where-Object {$_.LocalAddress -notin @('127.0.0.1','::1')}).Count){
+        if(Test-ListenerOwner $candidateListeners[0] $exe ($cfg.engine -eq 'webview2')){
+          $owned=[pscustomobject]@{Port=[int]$candidate;Listeners=$candidateListeners};break
         }
       }
-      if(-not $valid -or @($listener | Where-Object {$_.LocalAddress -notin @('127.0.0.1','::1')}).Count){throw 'Debug port is not owned by this app on loopback; refusing attachment'}
+    }
+    if($owned){$port=$owned.Port;$listener=@($owned.Listeners)}
+    if($listener){
+      $valid=Test-ListenerOwner $listener[0] $exe ($cfg.engine -eq 'webview2')
+      if(-not $valid -or @($listener | Where-Object {$_.LocalAddress -notin @('127.0.0.1','::1')}).Count){
+        if($processes.Count){throw 'Please save work, fully exit this app (including tray), then use its Pyidaungsu shortcut. No process was killed.'}
+        # Windows can retain an orphaned TCP listener after an app update/crash. Never attach to it;
+        # choose an unused loopback-only fallback port for this launch instead.
+        $port=19500..19599 | Where-Object {-not @(Get-FontListeners $_)} | Select-Object -First 1
+        if(-not $port){throw 'No safe local debug port is available. Restart Windows and try again.'}
+        $listener=@()
+      }
     }elseif($processes.Count){throw 'Please save work, fully exit this app (including tray), then use its Pyidaungsu shortcut. No process was killed.'}
     else {
-      $flags="--remote-debugging-address=127.0.0.1 --remote-debugging-port=$($cfg.port)"
+      $flags="--remote-debugging-address=127.0.0.1 --remote-debugging-port=$port"
       if($cfg.engine -eq 'webview2'){
         # Some WebView2/Tauri apps clear inherited arguments; use the executable policy as well.
         $policy='HKCU:\Software\Policies\Microsoft\Edge\WebView2\AdditionalBrowserArguments'
@@ -65,18 +94,10 @@ try {
       do {Start-Sleep -Milliseconds 1000;$listener=@(Get-FontListeners $cfg.port)}while(-not $listener -and (Get-Date) -lt $deadline)
       if(-not $listener){throw 'App does not expose its local renderer with the requested flag; no files were patched'}
       if(@($listener | Where-Object {$_.LocalAddress -notin @('127.0.0.1','::1')}).Count){throw 'Non-loopback debug listener detected; exit the app and do not use this launcher'}
-      $owner=Get-CimInstance Win32_Process -Filter "ProcessId=$($listener[0].OwningProcess)"
-      $valid=($owner.ExecutablePath -eq $exe)
-      if($cfg.engine -eq 'webview2'){
-        $cursor=$owner
-        for($i=0;$i -lt 8 -and $cursor;$i++){
-          if($cursor.ExecutablePath -eq $exe){$valid=$true;break}
-          $cursor=Get-CimInstance Win32_Process -Filter "ProcessId=$($cursor.ParentProcessId)"
-        }
-      }
+      $valid=Test-ListenerOwner $listener[0] $exe ($cfg.engine -eq 'webview2')
       if(-not $valid){throw 'Started debug listener is not owned by this app; refusing attachment'}
     }
-    & $node (Join-Path $PSScriptRoot 'inject-font.cjs') $cfg.port $App $state
+    & $node (Join-Path $PSScriptRoot 'inject-font.cjs') $port $App $state
     if($LASTEXITCODE -ne 0){throw 'Font injector failed'}
   }finally{$mutex.ReleaseMutex();$mutex.Dispose()}
 }catch{

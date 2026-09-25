@@ -17,7 +17,7 @@ App အသစ်များ: Freebuff, AutoClaw, Genspark Claw, Factory, Hermes
 
 ## Update ပြီးရင်
 
-အသစ်ထည့်ထားတဲ့ app တွေက `(Pyidaungsu)` shortcut နဲ့ ဖွင့်ရုံပါ။ မူလ app ဖိုင်တွေကို မပြင်ထားလို့ update ပြီး archive ထပ် patch လုပ်စရာ မလိုတဲ့ပုံစံဖြစ်ပါတယ်။ သို့သော် vendor က executable path/debugging support ပြောင်းသွားရင် launcher ပြန်ပြင်ဖို့ လိုနိုင်ပါတယ်။ ပုံမှန် vendor shortcut နဲ့ဖွင့်ရင် font helper မပါပါဘူး။
+အသစ်ထည့်ထားတဲ့ app တွေက `(Pyidaungsu)` shortcut နဲ့ ဖွင့်ရုံပါ။ မူလ app ဖိုင်တွေကို မပြင်ထားလို့ update ပြီး archive ထပ် patch လုပ်စရာ မလိုတဲ့ပုံစံဖြစ်ပါတယ်။ သတ်မှတ်ထားတဲ့ local debug port ကို update/crash အပြီး process အဟောင်းက ခဏယူထားရင် launcher က မမှားချိတ်ဘဲ free loopback port ကို auto ရွေးပြီး၊ shortcut ထပ်နှိပ်တဲ့အခါ exact app owner စစ်ပြီးမှ ပြန်ချိတ်ပါတယ်။ သို့သော် vendor က executable path/debugging support ပြောင်းသွားရင် launcher ပြန်ပြင်ဖို့ လိုနိုင်ပါတယ်။ ပုံမှန် vendor shortcut နဲ့ဖွင့်ရင် font helper မပါပါဘူး။
 
 Font helper က hidden နဲ့ run ပါတယ်။ App renderer မရှိတော့ရင် ၆၀ စက္ကန့်အတွင်း ရပ်ပါမယ်။ Startup task အသစ် မထည့်ထားပါဘူး။
 
