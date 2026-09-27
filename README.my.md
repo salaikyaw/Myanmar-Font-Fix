@@ -21,6 +21,8 @@ App အသစ်များ: Freebuff, AutoClaw, Genspark Claw, Factory, Hermes
 
 Font helper က hidden နဲ့ run ပါတယ်။ App renderer မရှိတော့ရင် ၆၀ စက္ကန့်အတွင်း ရပ်ပါမယ်။ Startup task အသစ် မထည့်ထားပါဘူး။
 
+MDHero ကို `.md` default အဖြစ်ရွေးထားလျှင် `.md` file ကို double-click ဖွင့်တာလည်း Pyidaungsu launcher ကဖြတ်ပြီးဖွင့်ပါမယ်။ Windows ရဲ့ valid MDHero default ကိုမဖျက်ဘဲ သူ့ open command တစ်ခုတည်းကိုပြောင်းတာပါ။ အရင် command ကို `%LOCALAPPDATA%\Myanmar-Font-Fix\association-backups\md-progid-before-pyidaungsu.reg` မှာ rollback အတွက်သိမ်းထားပါတယ်။
+
 ## GitHub မှ အသုံးပြုရန်
 
 Repo ကို မိမိနှစ်သက်ရာ writable folder ထဲ clone လုပ်ပြီး `npm install` လုပ်ပါ။ ပြီးလျှင် `Run-Repair-Font.bat` ကို ဖွင့်နိုင်ပါတယ်။ Pyidaungsu font ဖိုင်ကို ဒီ repo ထဲ မဖြန့်ဝေပါ။ ယုံကြည်ရတဲ့ source ကနေ သီးခြား install လုပ်ထားရပါမယ်။

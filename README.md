@@ -30,6 +30,8 @@ New launchers do not unpack/rewrite signed vendor archives, restore stale binari
 
 Use the Pyidaungsu shortcut after updates; ordinary vendor shortcuts bypass runtime injection. Runtime updates can still remove debugging support, change the renderer origin, or change installation paths. In that case the launcher must fail rather than claim success. See `apps.json` for locally verified installation paths.
 
+For MDHero, the collection preserves its valid `.md` default association and changes only MDHero's open command to the Pyidaungsu launcher. Double-clicking an `.md` file then opens it through MDHero with the font helper. The original `md` ProgID is exported to `%LOCALAPPDATA%\Myanmar-Font-Fix\association-backups\md-progid-before-pyidaungsu.reg` for rollback.
+
 **Security:** a local debugging port grants control of the app to other processes running on this PC. Configured ports 19431–19441 and automatic conflict-fallback ports 19500–19599 must stay loopback-only; never port-forward or expose them. A repeated shortcut launch reuses a fallback port only after proving that the exact app executable owns it. Orphaned or foreign listeners are never attached. Only use these launchers on a trusted local machine. WebView2 launchers additionally set an **executable-only** HKCU policy, with a backup. This is not a wildcard or system-wide policy; however, ordinary launches of that executable also inherit the policy until restored. Remote login/web pages are deliberately excluded from CSS injection.
 
 ## CMD / PowerShell / Codex CLI

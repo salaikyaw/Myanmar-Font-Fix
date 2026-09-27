@@ -1,5 +1,8 @@
 [CmdletBinding()]
-param([Parameter(Mandatory=$true)][string]$App)
+param(
+  [Parameter(Mandatory=$true)][string]$App,
+  [string]$FilePath
+)
 $ErrorActionPreference='Stop'
 $state=Join-Path $env:LOCALAPPDATA 'Myanmar-Font-Fix\status'
 New-Item -ItemType Directory -Path $state -Force | Out-Null
@@ -28,6 +31,12 @@ try {
   $catalog=Get-Content (Join-Path $PSScriptRoot 'apps.json') -Raw | ConvertFrom-Json
   $cfg=$catalog | Where-Object id -eq $App
   if(-not $cfg){throw "Unknown app: $App"}
+  if($FilePath){
+    if($App -ne 'mdhero'){throw 'Opening a file is supported only for MDHero'}
+    if(-not (Test-Path -LiteralPath $FilePath -PathType Leaf)){throw 'Markdown file was not found'}
+    if([IO.Path]::GetExtension($FilePath) -ine '.md'){throw 'Only .md files are accepted'}
+    $FilePath=(Resolve-Path -LiteralPath $FilePath).Path
+  }
   $exe=[Environment]::ExpandEnvironmentVariables($cfg.exe)
   if($App -eq 'factory'){
     $latest=Get-ChildItem (Split-Path $exe) -Directory -Filter 'app-*' | Sort-Object {try{[version]($_.Name.Substring(4))}catch{[version]'0.0'}} -Descending | Select-Object -First 1
@@ -87,11 +96,17 @@ try {
         New-Item -Path $policy -Force | Out-Null
         New-ItemProperty -LiteralPath $policy -Name $valueName -PropertyType String -Value "$extra $flags" -Force | Out-Null
         $env:WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS="$extra $flags"
-        Start-Process -FilePath $exe -WorkingDirectory (Split-Path $exe) -ArgumentList ('"--edge-webview-switches='+$flags+'"')
+        $arguments=@('"--edge-webview-switches='+$flags+'"')
+        if($FilePath){$arguments+=$FilePath}
+        Start-Process -FilePath $exe -WorkingDirectory (Split-Path $exe) -ArgumentList $arguments
       }
-      else {Start-Process -FilePath $exe -WorkingDirectory (Split-Path $exe) -ArgumentList $flags}
+      else {
+        $arguments=@($flags)
+        if($FilePath){$arguments+=$FilePath}
+        Start-Process -FilePath $exe -WorkingDirectory (Split-Path $exe) -ArgumentList $arguments
+      }
       $deadline=(Get-Date).AddSeconds(40)
-      do {Start-Sleep -Milliseconds 1000;$listener=@(Get-FontListeners $cfg.port)}while(-not $listener -and (Get-Date) -lt $deadline)
+      do {Start-Sleep -Milliseconds 1000;$listener=@(Get-FontListeners $port)}while(-not $listener -and (Get-Date) -lt $deadline)
       if(-not $listener){throw 'App does not expose its local renderer with the requested flag; no files were patched'}
       if(@($listener | Where-Object {$_.LocalAddress -notin @('127.0.0.1','::1')}).Count){throw 'Non-loopback debug listener detected; exit the app and do not use this launcher'}
       $valid=Test-ListenerOwner $listener[0] $exe ($cfg.engine -eq 'webview2')

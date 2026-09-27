@@ -16,6 +16,8 @@ function Install-Launchers {
     $s.WorkingDirectory=$PSScriptRoot;$s.IconLocation="$exe,0";$s.Description='App-local Myanmar font; no vendor files modified';$s.Save()
     Write-Host "READY (not live-verified): $($app.name)"
   }
+  # Preserve the existing MDHero default and redirect only its .md open command.
+  try {& (Join-Path $PSScriptRoot 'Register-MarkdownAssociation.ps1') | Out-Null;Write-Host 'READY: MDHero .md Pyidaungsu association'}catch{Write-Warning "MDHero .md association unchanged: $($_.Exception.Message)"}
   $p=Join-Path $desktop 'Run-Repair-Font.lnk'
   if(Test-Path $p){New-Item -ItemType Directory $backup -Force|Out-Null;Copy-Item -LiteralPath $p -Destination $backup}
   $s=$shell.CreateShortcut($p);$s.TargetPath=Join-Path $PSScriptRoot 'Run-Repair-Font.bat';$s.WorkingDirectory=$PSScriptRoot;$s.Save()
