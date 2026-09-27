@@ -20,7 +20,9 @@ Windows app-local Pyidaungsu launchers, UTF-8 terminal profiles, and the existin
 6. Open the app using its **(Pyidaungsu)** shortcut. Subsequent launches use the current installed executable. Factory's versioned installation is rediscovered each time.
 7. Choose **S** for the last renderer verification. `READY` means installed, **not** visually verified. A successful CSS/font probe does not prove every conversation, embedded frame, canvas, or terminal surface renders correctly.
 
-New app entries: Freebuff, AutoClaw, Genspark Claw (not Genspark Browser), Factory, Hermes Desktop (not the setup app), LM Studio, OpenWorker, AnythingLLM, Kimi, Qoder, MDHero.
+New app entries: Freebuff, AutoClaw, Genspark Claw (not Genspark Browser), Factory, Hermes Desktop (not the setup app), LM Studio, OpenWorker, AnythingLLM, Kimi, Qoder, MDHero, Notesnook.
+
+Notesnook desktop is an Electron shell that loads the first-party web app at `https://app.notesnook.com`, so only that exact origin is allowlisted for its app-owned debugging port. Because the app locks its UI to the bundled Inter webfont, it uses `font-notesnook.css` instead of the shared `font.css`: an optional `font-<app>.css` next to the injector replaces the shared stylesheet for that one app. Notesnook's file re-declares Inter with a Myanmar-only `unicode-range`, so Burmese resolves to a locally installed Unicode font while Latin, KaTeX math, and icon faces keep the app's own type.
 
 Kimi's main chat is hosted at `https://www.kimi.com`; only that exact origin is allowlisted for its app-owned debugging port. Its auxiliary local windows are excluded. The launcher never navigates to or reads browser profiles.
 
@@ -32,7 +34,7 @@ Use the Pyidaungsu shortcut after updates; ordinary vendor shortcuts bypass runt
 
 For MDHero, the collection preserves its valid `.md` default association and changes only MDHero's open command to the Pyidaungsu launcher. Double-clicking an `.md` file then opens it through MDHero with the font helper. The original `md` ProgID is exported to `%LOCALAPPDATA%\Myanmar-Font-Fix\association-backups\md-progid-before-pyidaungsu.reg` for rollback.
 
-**Security:** a local debugging port grants control of the app to other processes running on this PC. Configured ports 19431–19441 and automatic conflict-fallback ports 19500–19599 must stay loopback-only; never port-forward or expose them. A repeated shortcut launch reuses a fallback port only after proving that the exact app executable owns it. Orphaned or foreign listeners are never attached. Only use these launchers on a trusted local machine. WebView2 launchers additionally set an **executable-only** HKCU policy, with a backup. This is not a wildcard or system-wide policy; however, ordinary launches of that executable also inherit the policy until restored. Remote login/web pages are deliberately excluded from CSS injection.
+**Security:** a local debugging port grants control of the app to other processes running on this PC. Configured ports 19431–19442 and automatic conflict-fallback ports 19500–19599 must stay loopback-only; never port-forward or expose them. A repeated shortcut launch reuses a fallback port only after proving that the exact app executable owns it. Orphaned or foreign listeners are never attached. Only use these launchers on a trusted local machine. WebView2 launchers additionally set an **executable-only** HKCU policy, with a backup. This is not a wildcard or system-wide policy; however, ordinary launches of that executable also inherit the policy until restored. Remote login/web pages are deliberately excluded from CSS injection.
 
 ## CMD / PowerShell / Codex CLI
 

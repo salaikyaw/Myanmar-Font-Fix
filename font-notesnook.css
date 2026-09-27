@@ -1,0 +1,58 @@
+/*
+ * Notesnook desktop: the renderer is the first-party hosted app, which locks its UI to the
+ * bundled Inter webfont. Overriding font-family app-wide would replace Inter for Latin text and
+ * clobber KaTeX/icon faces, so each weight is re-declared with a Myanmar-only unicode-range.
+ * Myanmar codepoints resolve to a locally installed Unicode font; every other script keeps
+ * the app's own face. "Myanmar Text" is deliberately last: on this PC that family name points
+ * at Zawgyi-mapped files, which scramble Unicode text.
+ */
+@font-face {
+  font-family: "MyanmarFontFix";
+  src: local("Pyidaungsu"), local("Noto Sans Myanmar"), local("Myanmar Text");
+  unicode-range: U+1000-109F, U+A9E0-A9FF, U+AA60-AA7F;
+}
+@font-face {
+  font-family: "Inter"; font-style: normal; font-weight: 400;
+  src: local("Pyidaungsu"), local("Noto Sans Myanmar"), local("Myanmar Text");
+  unicode-range: U+1000-109F, U+A9E0-A9FF, U+AA60-AA7F;
+}
+@font-face {
+  font-family: "Inter"; font-style: normal; font-weight: 500;
+  src: local("Noto Sans Myanmar Medium"), local("Pyidaungsu"), local("Myanmar Text");
+  unicode-range: U+1000-109F, U+A9E0-A9FF, U+AA60-AA7F;
+}
+@font-face {
+  font-family: "Inter"; font-style: normal; font-weight: 600;
+  src: local("Noto Sans Myanmar SemiBold"), local("Pyidaungsu Bold"), local("Myanmar Text");
+  unicode-range: U+1000-109F, U+A9E0-A9FF, U+AA60-AA7F;
+}
+@font-face {
+  font-family: "Inter"; font-style: normal; font-weight: 700;
+  src: local("Pyidaungsu Bold"), local("Noto Sans Myanmar Bold"), local("Myanmar Text");
+  unicode-range: U+1000-109F, U+A9E0-A9FF, U+AA60-AA7F;
+}
+@font-face {
+  font-family: "Inter"; font-style: italic; font-weight: 400;
+  src: local("Pyidaungsu"), local("Noto Sans Myanmar"), local("Myanmar Text");
+  unicode-range: U+1000-109F, U+A9E0-A9FF, U+AA60-AA7F;
+}
+@font-face {
+  font-family: "Inter"; font-style: italic; font-weight: 500;
+  src: local("Noto Sans Myanmar Medium"), local("Pyidaungsu"), local("Myanmar Text");
+  unicode-range: U+1000-109F, U+A9E0-A9FF, U+AA60-AA7F;
+}
+@font-face {
+  font-family: "Inter"; font-style: italic; font-weight: 600;
+  src: local("Noto Sans Myanmar SemiBold"), local("Pyidaungsu Bold"), local("Myanmar Text");
+  unicode-range: U+1000-109F, U+A9E0-A9FF, U+AA60-AA7F;
+}
+@font-face {
+  font-family: "Inter"; font-style: italic; font-weight: 700;
+  src: local("Pyidaungsu Bold"), local("Noto Sans Myanmar Bold"), local("Myanmar Text");
+  unicode-range: U+1000-109F, U+A9E0-A9FF, U+AA60-AA7F;
+}
+/* Insurance for surfaces that inherit their family instead of naming Inter. */
+html, body {
+  font-family: "MyanmarFontFix", Inter, "Segoe UI", system-ui, sans-serif !important;
+  font-variant-ligatures: normal;
+}
