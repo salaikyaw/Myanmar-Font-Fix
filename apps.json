@@ -10,5 +10,7 @@
   {"id":"kimi","name":"Kimi","engine":"electron","exe":"%LOCALAPPDATA%\\Programs\\kimi-desktop\\Kimi.exe","port":19439,"primaryOrigins":["https://www.kimi.com"]},
   {"id":"qoder","name":"Qoder","engine":"electron","exe":"%LOCALAPPDATA%\\Programs\\Qoder\\Qoder.exe","port":19440,"primaryOrigins":["qoder-app://renderer"]},
   {"id":"mdhero","name":"MDHero","engine":"webview2","exe":"%LOCALAPPDATA%\\MDHero\\mdhero.exe","port":19441},
-  {"id":"notesnook","name":"Notesnook","engine":"electron","exe":"%LOCALAPPDATA%\\Programs\\@notesnookdesktop\\Notesnook.exe","port":19442,"primaryOrigins":["https://app.notesnook.com"]}
+  {"id":"notesnook","name":"Notesnook","engine":"electron","exe":"%LOCALAPPDATA%\\Programs\\@notesnookdesktop\\Notesnook.exe","port":19442,"primaryOrigins":["https://app.notesnook.com"]},
+  {"id":"marktext","name":"MarkText","engine":"preference","exe":"%LOCALAPPDATA%\\Programs\\marktext\\marktext.exe","port":19443},
+  {"id":"workbuddy","name":"WorkBuddyAI","engine":"env-port","envVar":"WORKBUDDY_REMOTE_DEBUGGING_PORT","exe":"%ProgramFiles%\\WorkBuddyAI\\WorkBuddyAI.exe","port":19444}
 ]

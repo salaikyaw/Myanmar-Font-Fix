@@ -46,6 +46,15 @@ try {
   $node=(Get-Command node.exe -ErrorAction Stop).Source
   $major=[int]((& $node --version) -replace '^v(\d+).*','$1')
   if($major -lt 22){throw 'Node.js 22 or newer is required'}
+  if($cfg.engine -eq 'preference'){
+    # MarkText rejects --remote-debugging-port (its arg parser exits with "bad option").
+    # Use the app's built-in customCss preference to inject font CSS permanently.
+    & $node (Join-Path $PSScriptRoot 'patch-marktext-css.cjs')
+    if($LASTEXITCODE -ne 0){throw 'Preference patcher failed'}
+    Start-Process -FilePath $exe -WorkingDirectory (Split-Path $exe)
+    @{app=$App;ok=$true;reason='customCss preference patched; app launched normally';time=(Get-Date).ToString('o')} | ConvertTo-Json | Set-Content (Join-Path $state "$App.json") -Encoding UTF8
+    exit 0
+  }
   $created=$false
   $mutex=[Threading.Mutex]::new($true,"Local\MyanmarFontFix-$App",[ref]$created)
   if(-not $created){$mutex.Dispose();exit 0}
@@ -53,7 +62,7 @@ try {
     # Count only a top-level GUI instance. Updaters and Qoder's persistent daemon use the
     # same executable but do not own a renderer window and must not block a safe relaunch.
     $processes=@(Get-CimInstance Win32_Process -Filter ("Name='"+[IO.Path]::GetFileName($exe)+"'") | Where-Object {
-      $_.ExecutablePath -eq $exe -and $_.CommandLine -notmatch '\s--type=' -and $_.CommandLine -notmatch '\sdaemon-server(?:\s|$)' -and $_.CommandLine -notmatch '\.(?:c|m)?js(?:"|\s|$)'
+      $_.ExecutablePath -eq $exe -and $_.CommandLine -notmatch '\s--type=' -and $_.CommandLine -notmatch '\sdaemon-server(?:\s|$)' -and $_.CommandLine -notmatch '\.(?:c|m)?js(?:\"|\s|$)'
     })
     $port=[int]$cfg.port
     $listener=@(Get-FontListeners $port)
@@ -81,8 +90,17 @@ try {
       }
     }elseif($processes.Count){throw 'Please save work, fully exit this app (including tray), then use its Pyidaungsu shortcut. No process was killed.'}
     else {
+      # Clear any stale value first; an empty assignment removes the variable.
+      $env:WORKBUDDY_REMOTE_DEBUGGING_PORT=''
       $flags="--remote-debugging-address=127.0.0.1 --remote-debugging-port=$port"
-      if($cfg.engine -eq 'webview2'){
+      if($cfg.engine -eq 'env-port'){
+        # WorkBuddyAI (v5.6.2) documents this env hook in its own main bundle: when set,
+        # the app appends --remote-debugging-port and --remote-allow-origins itself
+        # (loopback by default). No vendor files or CLI flags are touched.
+        $env:WORKBUDDY_REMOTE_DEBUGGING_PORT="$port"
+        Start-Process -FilePath $exe -WorkingDirectory (Split-Path $exe)
+      }
+      elseif($cfg.engine -eq 'webview2'){
         # Some WebView2/Tauri apps clear inherited arguments; use the executable policy as well.
         $policy='HKCU:\Software\Policies\Microsoft\Edge\WebView2\AdditionalBrowserArguments'
         $valueName=[IO.Path]::GetFileName($exe)

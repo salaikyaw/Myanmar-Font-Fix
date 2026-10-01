@@ -3,8 +3,8 @@
 ## အသုံးပြုနည်း
 
 - Desktop ပေါ်က **Run-Repair-Font** ကိုဖွင့်ပါ။
-- **I**: App အသစ် ၁၂ ခုအတွက် Pyidaungsu shortcut ထည့်/ပြန်ပြင်ရန်။ App မပိတ်ပါ။
-- **1–12**: သက်ဆိုင်ရာ app ကို Pyidaungsu နဲ့ ဖွင့်ရန်။ အရင်ဖွင့်ထားလျှင် save လုပ်ပြီး tray မှ Exit လုပ်ထားရပါမယ်။
+- **I**: App အသစ် ၁၄ ခုအတွက် Pyidaungsu shortcut ထည့်/ပြန်ပြင်ရန်။ App မပိတ်ပါ။
+- **1–14**: သက်ဆိုင်သာ app ကို Pyidaungsu နဲ့ ဖွင့်ရန်။ အရင်ဖွင့်ထားလျှင် save လုပ်ပြီး tray မှ Exit လုပ်ထားရပါမယ်။
 - **T**: CMD/PowerShell အတွက် Myanmar Windows Terminal profile နှစ်ခုထည့်ရန်။
 - **L**: အရင်ကရှိပြီးသား app များ၏ legacy repair menu။ အချို့ option က app ပိတ်တတ်လို့ အလုပ်အရင်သိမ်းပါ။
 - **D**: OpenCode / Desktop Commander font + tray repair အဟောင်း။
@@ -13,7 +13,9 @@
 
 Menu အားလုံးကို `↑/↓` နဲ့ရွေးပြီး `Enter` နှိပ်နိုင်သလို မူလ နံပါတ်/အက္ခရာ + `Enter` နည်းလည်း ဆက်သုံးနိုင်ပါတယ်။ ရွေးထားတဲ့လိုင်းကို အဝါရောင်နဲ့ပြပါတယ်။ Main menu မှာ `Esc` က Quit ဖြစ်ပြီး Legacy/Manual submenu မှာ `Esc` က Back ဖြစ်ပါတယ်။ Action ပြီးရင် လက်ရှိ menu ကိုပြန်ရောက်ပြီး `Q` နဲ့ collection တစ်ခုလုံးထွက်နိုင်ပါတယ်။ Legacy Manual ထဲက `A` သည် app အားလုံး patch လုပ်ပြီး `M` သည် `1,3,8` ပုံစံနဲ့ app အများကြီးရွေးနိုင်ပါတယ်။
 
-App အသစ်များ: Freebuff, AutoClaw, Genspark Claw, Factory, Hermes Desktop, LM Studio, OpenWorker, AnythingLLM, Kimi, Qoder, MDHero, Notesnook.
+App အသစ်များ: Freebuff, AutoClaw, Genspark Claw, Factory, Hermes Desktop, LM Studio, OpenWorker, AnythingLLM, Kimi, Qoder, MDHero, Notesnook, MarkText, WorkBuddyAI.
+
+**WorkBuddyAI (v5.6.2)** က သူ့ main bundle ထဲမှာ သူ့ဘာသာသူ ဖန်တီးထားတဲ့ debug hook တစ်ခုပါရှိပါတယ် — `WORKBUDDY_REMOTE_DEBUGGING_PORT` environment variable ကို port နံပါတ်ဆက်ပြီး ထားရင် app က သူ့ဘာသာ `--remote-debugging-port` နဲ့ `--remote-allow-origins` ကို ကိုယ်ထဲ ထည့်ပေးပါတယ်။ `env-port` engine က ဒီ hook ကိုပဲ အသုံးပြုတာမို့ vendor file၊ CLI flag၊ policy ဘာမှ မထိရပါဘူး။ app update လုပ်လို့ ပြင်ဆင်မှု မပျက်ပါဘူး။ Legacy menu (အခန်း 12) ကလည်း WorkBuddyAI ကို ဒီ hook နဲ့ပဲ ပိတ်ပြီး ပြန်ဖွင့်ပေးနိုင်ပါတယ်။
 
 Notesnook desktop က renderer အဖြစ် `https://app.notesnook.com` ကိုတင် ဖွင့်တဲ့ Electron shell ဖြစ်လို့ ဒီ origin တစ်ခုတည်းကို allowlist ထည့်ထားပါတယ်။ သူ့ UI က Inter ကို သုံးထားတဲ့အတွက် shared `font.css` အစား `font-notesnook.css` သီးသန့်သုံးပါတယ် — မြန်မာ codepoint (U+1000–109F စသည်) နေရာမှာသာ local Unicode font ပြောင်းပြီး Latin၊ KaTeX သင်္ချာနဲ့ icon font တွေက app မူလအတိုင်း ကျန်ပါတယ်။
 

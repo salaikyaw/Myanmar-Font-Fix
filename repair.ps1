@@ -39,7 +39,7 @@ $items=@(for($i=0;$i -lt $apps.Count;$i++){
 $items+=@(
   [pscustomobject]@{Key='I';Label='Install/update app shortcuts (no app restarts)'},
   [pscustomobject]@{Key='T';Label='Install CMD/PowerShell Myanmar profiles'},
-  [pscustomobject]@{Key='L';Label='Legacy repairs: Antigravity, MonkeyCode, OpenCode, Jan, VS Code, ZCode, Zed, Verdent'},
+  [pscustomobject]@{Key='L';Label='Legacy repairs: Antigravity, MonkeyCode, OpenCode, Jan, VS Code, ZCode, Zed, Verdent, WorkBuddyAI'},
   [pscustomobject]@{Key='D';Label='OpenCode + DC font/tray repair (save and close both first)'},
   [pscustomobject]@{Key='W';Label='Qwen Pyidaungsu launcher'},
   [pscustomobject]@{Key='S';Label='Status (last verification)'},

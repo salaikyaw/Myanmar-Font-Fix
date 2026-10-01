@@ -364,6 +364,40 @@ function Patch-Verdent {
     }
 }
 
+function Patch-WorkBuddy {
+    Write-Host "`n[+] Launching WorkBuddyAI with runtime Pyidaungsu injection..." -ForegroundColor Yellow
+    $wbExe = "$env:ProgramFiles\WorkBuddyAI\WorkBuddyAI.exe"
+    if (-not (Test-Path $wbExe)) {
+        Write-Host "  [-] WorkBuddyAI not found at $wbExe" -ForegroundColor DarkGray
+        return
+    }
+    $procs = Get-Process WorkBuddyAI -ErrorAction SilentlyContinue
+    if ($procs) {
+        Write-Host "    WorkBuddyAI is running. Please save your work first." -ForegroundColor DarkYellow
+        $answer = Read-Host "    Close WorkBuddyAI and relaunch it with Pyidaungsu? (y/N)"
+        if ($answer -notmatch '^[Yy]') {
+            Write-Host "  [-] Skipped. Use the 'WorkBuddyAI (Pyidaungsu)' desktop shortcut after exiting the app." -ForegroundColor DarkGray
+            return
+        }
+        $procs | Stop-Process -Force
+        $procs | Wait-Process -Timeout 15 -ErrorAction SilentlyContinue
+        Start-Sleep -Seconds 2
+    }
+    $projectRoot = Split-Path $PSScriptRoot -Parent
+    & powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $projectRoot 'Launch-App.ps1') -App workbuddy
+    $wbStatus = Join-Path $env:LOCALAPPDATA 'Myanmar-Font-Fix\status\workbuddy.json'
+    if (Test-Path $wbStatus) {
+        try {
+            $live = Get-Content $wbStatus -Raw | ConvertFrom-Json
+            if ($live.ok -eq $true) {
+                Write-Host "[OK] WorkBuddyAI renderer verified with MyanmarFontFix (Pyidaungsu)." -ForegroundColor Green
+                return
+            }
+        } catch {}
+    }
+    Write-Host "[!] WorkBuddyAI launch or live font verification did not report success. See: $wbStatus" -ForegroundColor Red
+}
+
 function Restart-Explorer {
     Write-Host "`n[*] Restarting Windows Explorer to apply environment variable updates..." -ForegroundColor Yellow
     Stop-Process -Name explorer -Force -ErrorAction SilentlyContinue
@@ -507,6 +541,12 @@ function Run-AutoDetect {
     if ($status.vscode.installed -and -not $status.vscode.patched) { $toPatch += "vscode" }
     if ($status.zed.installed -and -not $status.zed.patched) { $toPatch += "zed" }
     if ($status.verdent.installed -and -not $status.verdent.patched) { $toPatch += "verdent" }
+    # WorkBuddyAI uses a runtime launcher (no persistent file patch), so auto-detect
+    # only reports that the app is present; patching happens on demand via its entry.
+    $wbExe = "$env:ProgramFiles\WorkBuddyAI\WorkBuddyAI.exe"
+    if (Test-Path $wbExe) {
+        Write-Host "  WorkBuddyAI:       Installed=True, Patched=runtime launcher (use menu item)"
+    }
 
     Write-Host "`n=== Auto-Detect Results ===" -ForegroundColor Cyan
     Write-Host "  Antigravity:       Installed=$($status.antigravity.installed), Patched=$($status.antigravity.patched)"
@@ -548,6 +588,7 @@ function Run-AllPatches {
     Patch-ZCode
     Patch-Zed
     Patch-Verdent
+    Patch-WorkBuddy
     # No Explorer restart: it would unnecessarily interrupt unrelated apps.
 }
 
@@ -565,6 +606,8 @@ function Run-ManualSelection {
             '9' { Restart-Explorer }
             '10' { Patch-FontLinking }
             '11' { Start-Process wscript.exe -ArgumentList ('"' + (Join-Path $PSScriptRoot 'launch-monkeycode-pyidaungsu.vbs') + '"') }
+            '12' { Patch-WorkBuddy }
+            '13' { & powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path (Split-Path $PSScriptRoot -Parent) 'Launch-App.ps1') -App freebuff }
             'A' { Run-AllPatches }
         }
     }
@@ -580,6 +623,8 @@ function Run-ManualSelection {
         [pscustomobject]@{Key='9';Label='Restart Windows Explorer (manual only)'},
         [pscustomobject]@{Key='10';Label='System-wide Font Linking (optional; Admin + restart)'},
         [pscustomobject]@{Key='11';Label='MonkeyCode Desktop (NOT IDE) - Pyidaungsu launcher'},
+        [pscustomobject]@{Key='12';Label='WorkBuddyAI (runtime injection via its own debug-port env hook)'},
+        [pscustomobject]@{Key='13';Label='Freebuff (Pyidaungsu via CDP debug-port injection)'},
         [pscustomobject]@{Key='A';Label='Patch All Applications'},
         [pscustomobject]@{Key='M';Label='Multi-select numbers (example: 1,3,8)'},
         [pscustomobject]@{Key='B';Label='Back to Legacy menu'},
@@ -594,7 +639,7 @@ function Run-ManualSelection {
                 $multi=(Read-Host 'Numbers separated by commas (example: 1,3,8)').Trim()
                 foreach($entry in ($multi -split ',')){
                     $manual=$entry.Trim()
-                    if($manual -match '^(?:[1-9]|10|11)$'){Invoke-ManualChoice $manual}
+                    if($manual -match '^(?:[1-9]|1[0-3])$'){Invoke-ManualChoice $manual}
                     elseif($manual){Write-Host "Skipped invalid item: $manual" -ForegroundColor Red}
                 }
             }

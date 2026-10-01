@@ -20,11 +20,15 @@ Windows app-local Pyidaungsu launchers, UTF-8 terminal profiles, and the existin
 6. Open the app using its **(Pyidaungsu)** shortcut. Subsequent launches use the current installed executable. Factory's versioned installation is rediscovered each time.
 7. Choose **S** for the last renderer verification. `READY` means installed, **not** visually verified. A successful CSS/font probe does not prove every conversation, embedded frame, canvas, or terminal surface renders correctly.
 
-New app entries: Freebuff, AutoClaw, Genspark Claw (not Genspark Browser), Factory, Hermes Desktop (not the setup app), LM Studio, OpenWorker, AnythingLLM, Kimi, Qoder, MDHero, Notesnook.
+New app entries: Freebuff, AutoClaw, Genspark Claw (not Genspark Browser), Factory, Hermes Desktop (not the setup app), LM Studio, OpenWorker, AnythingLLM, Kimi, Qoder, MDHero, Notesnook, MarkText, WorkBuddyAI.
+
+WorkBuddyAI (v5.6.2) exposes its own documented debugging hook: when the environment variable `WORKBUDDY_REMOTE_DEBUGGING_PORT` is set to a numeric port, the app appends `--remote-debugging-port` and `--remote-allow-origins` itself before any window opens. The `env-port` engine uses exactly that hook — no vendor files, CLI flags, or policies are touched, so an app update cannot undo the repair. The Legacy menu (item 12) can also close and relaunch WorkBuddyAI through the same hook.
 
 Notesnook desktop is an Electron shell that loads the first-party web app at `https://app.notesnook.com`, so only that exact origin is allowlisted for its app-owned debugging port. Because the app locks its UI to the bundled Inter webfont, it uses `font-notesnook.css` instead of the shared `font.css`: an optional `font-<app>.css` next to the injector replaces the shared stylesheet for that one app. Notesnook's file re-declares Inter with a Myanmar-only `unicode-range`, so Burmese resolves to a locally installed Unicode font while Latin, KaTeX math, and icon faces keep the app's own type.
 
 Kimi's main chat is hosted at `https://www.kimi.com`; only that exact origin is allowlisted for its app-owned debugging port. Its auxiliary local windows are excluded. The launcher never navigates to or reads browser profiles.
+
+MarkText (v0.19.1) rejects `--remote-debugging-port` (its `arg` parser exits with "bad option"), so the debugging-port launcher cannot attach. Instead, the launcher patches the app's built-in `customCss` preference in `%APPDATA%\marktext\preferences.json` with the Myanmar `@font-face` alias, then opens MarkText normally. No vendor files are modified; the preference is backed up to `preferences.json.bak-myanmar-font-fix` before the first patch. Re-running the Pyidaungsu shortcut is idempotent and re-patches after a MarkText update resets preferences.
 
 ## Why launchers?
 
