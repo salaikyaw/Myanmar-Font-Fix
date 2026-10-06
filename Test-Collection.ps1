@@ -18,6 +18,15 @@ $launcher=Get-Content (Join-Path $PSScriptRoot 'Launch-App.ps1') -Raw
 $injector=Get-Content (Join-Path $PSScriptRoot 'inject-font.cjs') -Raw
 if($launcher -notmatch '19500\.\.19599' -or $launcher -notmatch 'Test-ListenerOwner' -or $launcher -notmatch '\.\(\?:c\|m\)\?js'){throw 'Safe fallback-port ownership logic missing'}
 if($injector -notmatch 'port > 19599'){throw 'Injector fallback-port boundary missing'}
+$menu=Get-Content (Join-Path $PSScriptRoot 'Select-FontMenu.ps1') -Raw
+if($menu -match '(?m)^\s*Clear-Host\b'){throw 'Font menu still uses Clear-Host (flicker regression)'}
+if($menu -notmatch 'font-menu\.cjs'){throw 'Node menu tier missing'}
+$menuScriptPath=Join-Path $PSScriptRoot 'font-menu.cjs'
+if(-not (Test-Path $menuScriptPath)){throw 'font-menu.cjs missing'}
+& node --check $menuScriptPath
+if($LASTEXITCODE){throw 'font-menu.cjs syntax check failed'}
+& node $menuScriptPath --selftest
+if($LASTEXITCODE){throw 'font-menu.cjs selftest failed'}
 if(-not (Test-Path (Join-Path $PSScriptRoot 'Open-Markdown.vbs'))){throw 'MDHero markdown opener missing'}
 if((Get-Content (Join-Path $PSScriptRoot 'Register-MarkdownAssociation.ps1') -Raw) -notmatch "md-progid-before-pyidaungsu"){throw 'MDHero association rollback missing'}
 & "$env:SystemRoot\System32\cscript.exe" //Nologo (Join-Path $PSScriptRoot 'Open-Markdown.vbs')

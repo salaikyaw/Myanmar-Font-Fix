@@ -16,3 +16,8 @@ VERIFICATION-*.md
 cli/
 legacy/Install-AntigravityConversationGuard.js
 legacy/Upgrade-AntigravityConversationGuard.js
+.fontmenu/
+.freebuff/
+.workbuddy-ai/
+test-output/
+recovered-chats/
