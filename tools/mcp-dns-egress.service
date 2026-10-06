@@ -1,0 +1,14 @@
+[Unit]
+Description=Loopback DNS relay through sk-hp SSH
+After=mcp-egress-skhp.service
+Wants=mcp-egress-skhp.service
+[Service]
+User=sk-dell-1
+ExecStart=/usr/bin/python3 /usr/local/lib/mcp-dns-egress.py
+Restart=always
+RestartSec=10
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,17 @@
+[Unit]
+Description=Restricted MCP HTTP egress via local SSH SOCKS
+After=docker.service mcp-egress-skhp.service
+Wants=mcp-egress-skhp.service
+Requires=docker.service
+StartLimitIntervalSec=0
+[Service]
+User=sk-dell-1
+ExecStart=/usr/bin/python3 /usr/local/lib/mcp-http-egress.py
+Restart=always
+RestartSec=10
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+[Install]
+WantedBy=multi-user.target

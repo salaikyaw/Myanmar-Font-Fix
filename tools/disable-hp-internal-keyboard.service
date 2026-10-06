@@ -1,0 +1,11 @@
+[Unit]
+Description=Disable faulty HP built-in keyboard
+After=systemd-udev-trigger.service
+Before=display-manager.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/disable-hp-internal-keyboard
+
+[Install]
+WantedBy=multi-user.target

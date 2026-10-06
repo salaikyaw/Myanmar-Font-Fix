@@ -1,0 +1,12 @@
+[Unit]
+Description=Battery Monitor - preserve state on critical battery
+After=basic.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/battery-monitor.sh
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
