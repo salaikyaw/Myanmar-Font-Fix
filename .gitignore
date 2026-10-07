@@ -21,3 +21,5 @@ legacy/Upgrade-AntigravityConversationGuard.js
 .workbuddy-ai/
 test-output/
 recovered-chats/
+console-helper.exe
+console-helper.pdb

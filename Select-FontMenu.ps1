@@ -87,9 +87,10 @@ function Select-FontMenu {
     }
     # ---- PowerShell tier: in-place redraw (no Clear-Host => no flicker) ----
     $index=0; $buffer=''
-    $pageSize=[Math]::Max(5,[Console]::WindowHeight-8)
-    $width=[Math]::Max(1,[Console]::WindowWidth-1)
-    $maxRows=$Items.Count
+    # body = blank + item rows + blank + status; keep the final newline off the
+    # bottom row so a redraw can never scroll (which would corrupt the frame).
+    $pageSize=[Math]::Max(1,[Console]::WindowHeight-9)
+    $width=[Math]::Max(1,[Console]::WindowWidth-2)
     $oldCursor=[Console]::CursorVisible
     $esc=[char]27
     function Format-FontMenuRow {
@@ -101,20 +102,15 @@ function Select-FontMenu {
     }
     try {
         [Console]::CursorVisible=$false
-        [Console]::Write(($esc+'[2J'+$esc+'H')) # clear once on menu entry, then redraw in place
+        [Console]::Write(($esc+'[2J'+$esc+'H'))
         Write-Host " $Title " -ForegroundColor Cyan
         Write-Host " $Subtitle" -ForegroundColor White
         Write-Host " Esc: $(if($EscapeValue -eq 'B'){'back'}else{'quit'})   Home/End: first/last" -ForegroundColor Gray
-        Write-Host ''
-        $printed=3+[Math]::Min($Items.Count,$pageSize)+2 # header(3) + item rows + blank + status
+        $bodyTop=[Console]::CursorTop # body starts on this row; redraw repositions here absolutely
         while($true){
-            $key=[Console]::ReadKey($true)
-            if($key.Key -eq 'Escape'){return $EscapeValue}
-            $state=Update-FontMenuSelection -Index $index -Count $Items.Count -Buffer $buffer -Key $key.Key.ToString() -Character ([string]$key.KeyChar) -Choices $choices
-            $index=$state.Index; $buffer=$state.Buffer
-            if($state.Done){return $state.Value}
-            # in-place redraw: cursor up $printed rows to the frame top, overwrite rows, never Clear-Host
-            [Console]::Write(($esc+"[$($printed)A"))
+            # absolute reposition to the frame body top: immune to drift/scroll
+            [Console]::SetCursorPosition(0,$bodyTop)
+            Write-Host ''
             $first=[int][Math]::Max(0,[Math]::Floor($index/[Math]::Max(1,$pageSize))*$pageSize)
             $last=[Math]::Min($Items.Count-1,$first+$pageSize-1)
             for($i=$first;$i -le $last;$i++){
@@ -124,6 +120,11 @@ function Select-FontMenu {
             }
             Write-Host ''
             Write-Host (" Typed: {0}  |  Item {1}/{2}" -f $buffer,($index+1),$Items.Count) -ForegroundColor Cyan
+            $key=[Console]::ReadKey($true)
+            if($key.Key -eq 'Escape'){return $EscapeValue}
+            $state=Update-FontMenuSelection -Index $index -Count $Items.Count -Buffer $buffer -Key $key.Key.ToString() -Character ([string]$key.KeyChar) -Choices $choices
+            $index=$state.Index; $buffer=$state.Buffer
+            if($state.Done){return $state.Value}
         }
     } finally {
         [Console]::CursorVisible=$oldCursor

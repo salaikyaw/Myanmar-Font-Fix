@@ -27,6 +27,10 @@ if(-not (Test-Path $menuScriptPath)){throw 'font-menu.cjs missing'}
 if($LASTEXITCODE){throw 'font-menu.cjs syntax check failed'}
 & node $menuScriptPath --selftest
 if($LASTEXITCODE){throw 'font-menu.cjs selftest failed'}
+$fmSource=Get-Content $menuScriptPath -Raw
+if($fmSource -match "'\[A'"){throw 'font-menu.cjs repeats [A without ESC per repeat (redraw prints literal [A)'}
+if($fmSource -notmatch '\?1049h'){throw 'font-menu.cjs alt-screen entry missing'}
+if($fmSource -notmatch [regex]::Escape("esc + '[H'")){throw 'font-menu.cjs absolute-home redraw missing'}
 if(-not (Test-Path (Join-Path $PSScriptRoot 'Open-Markdown.vbs'))){throw 'MDHero markdown opener missing'}
 if((Get-Content (Join-Path $PSScriptRoot 'Register-MarkdownAssociation.ps1') -Raw) -notmatch "md-progid-before-pyidaungsu"){throw 'MDHero association rollback missing'}
 & "$env:SystemRoot\System32\cscript.exe" //Nologo (Join-Path $PSScriptRoot 'Open-Markdown.vbs')

@@ -1,0 +1,193 @@
+// console-helper.csharp - interactive console test helper for Myanmar-Font-Fix menu testing
+// csc /out:console-helper.exe /r:System.Windows.Forms.dll console-helper.csharp
+using System;
+using System.Drawing;
+using System.IO;
+using System.Runtime.InteropServices;
+using System.Text;
+using System.Threading;
+using System.Windows.Forms;
+
+class Program
+{
+    [DllImport("user32.dll")] static extern IntPtr GetForegroundWindow();
+    [DllImport("user32.dll")] static extern bool SetForegroundWindow(IntPtr hWnd);
+    [DllImport("user32.dll")] static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+    [DllImport("user32.dll")] static extern bool GetWindowRect(IntPtr hWnd, out RECT rc);
+    [DllImport("user32.dll")] static extern IntPtr FindWindow(string lpClassName, string lpWindowName);
+    [DllImport("user32.dll")] static extern uint SendInput(uint nInputs, INPUT[] pInputs, int cbSize);
+    [DllImport("user32.dll")] static extern short GetSystemMetrics(int nIndex);
+    [DllImport("kernel32.dll")] static extern bool AllocConsole();
+    [DllImport("kernel32.dll")] static extern IntPtr GetConsoleWindow();
+    [DllImport("user32.dll")] static extern short GetConsoleCursorInfo(IntPtr hConsoleOutput, out CONSOLE_CURSOR_INFO lpConsoleCursorInfo);
+    [DllImport("kernel32.dll")] static extern IntPtr GetStdHandle(uint nStdHandle);
+    [DllImport("kernel32.dll")] static extern bool SetStdHandle(uint nStdHandle, IntPtr hConsoleOutput);
+    [DllImport("kernel32.dll")] static extern bool CloseHandle(IntPtr hObject);
+
+    const int SW_SHOW = 5, SM_CXSCREEN = 0, SM_CYSCREEN = 1, STD_OUTPUT_HANDLE = 0xFFFFFFF5;
+    const uint INPUT_MOUSE = 0, MOUSEEVENTF_MOVE = 0x0001, MOUSEEVENTF_LEFTDOWN = 0x0002, MOUSEEVENTF_LEFTUP = 0x0004;
+
+    [StructLayout(LayoutKind.Sequential)]
+    struct POINT { public int X, Y; }
+    [StructLayout(LayoutKind.Sequential)]
+    struct RECT { public int Left, Top, Right, Bottom; }
+    [StructLayout(LayoutKind.Sequential)]
+    struct MSG { public IntPtr hwnd; public uint message; public IntPtr wParam; public IntPtr lParam; public uint time; public POINT pt; }
+
+    [StructLayout(LayoutKind.Sequential)]
+    struct INPUT { public uint type; public MOUSEINPUT mi; }
+    [StructLayout(LayoutKind.Sequential)]
+    struct MOUSEINPUT { public int dx; public int dy; public int mouseData; public uint dwFlags; public uint time; public IntPtr dwExtraInfo; }
+
+    [StructLayout(LayoutKind.Sequential)]
+    struct CONSOLE_CURSOR_INFO { public int dwSize; public bool bVisible; }
+
+    static IntPtr AttachConsole(int pid)
+    {
+        if (pid == 0) return GetConsoleWindow();
+        return NativeMethods.AttachConsole(pid) ? GetStdHandle(STD_OUTPUT_HANDLE) : IntPtr.Zero;
+    }
+    static class NativeMethods
+    {
+        [DllImport("kernel32.dll", SetLastError = true)] public static extern bool AttachConsole(int dwProcessId);
+    }
+    static IntPtr GetTargetConsole(int pid)
+    {
+        var cw = GetConsoleWindow();
+        if (cw != IntPtr.Zero && pid == 0) return cw;
+        if (NativeMethods.AttachConsole(pid)) return GetStdHandle(STD_OUTPUT_HANDLE);
+        return IntPtr.Zero;
+    }
+    static void Dump(int pid, string outPath)
+    {
+        try
+        {
+            var cb = new StringBuilder(0x10000);
+            if (GetTargetConsole(pid) == IntPtr.Zero) throw new Exception("cannot attach console of pid " + pid);
+            uint len = (uint)cb.Capacity;
+            uint read = ReadConsoleOutputCharacterW(GetStdHandle(STD_OUTPUT_HANDLE), cb, (uint)cb.Capacity, new IntPtr(-1), out uint r);
+            if (r == 0) throw new Exception("ReadConsoleOutputCharacter failed rc=0");
+            File.WriteAllText(outPath, cb.ToString(), Encoding.UTF8);
+            Console.WriteLine("DUMP written: " + outPath + " (" + r + " chars)");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("DUMP FAILED: " + ex.Message);
+        }
+    }
+    [DllImport("kernel32.dll", SetLastError = true)]
+    static extern uint ReadConsoleOutputCharacterW(IntPtr hConsoleOutput, StringBuilder lpCharacter, uint nLength, IntPtr dwReadCoord, out uint lpNumberOfCharsRead);
+    static void DumpLegacy(int pid, string outPath)
+    {
+        // Fallback: just show what's on our own console (for debugging helper itself).
+        Console.WriteLine("DUMP: attach failed for pid " + pid + " - cannot read target screen.");
+        File.WriteAllText(outPath, "ERROR: cannot attach console\n", Encoding.UTF8);
+    }
+            if (r == 0) throw new Exception("ReadConsoleOutputCharacter failed rc=0");
+            File.WriteAllText(outPath, cb.ToString(), Encoding.UTF8);
+            Console.WriteLine("DUMP written: " + outPath + " (" + r + " chars)");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("DUMP FAILED: " + ex.Message);
+        }
+    }
+    [DllImport("kernel32.dll", SetLastError = true)]
+    static extern uint ReadConsoleOutputCharacterW(IntPtr hConsoleOutput, StringBuilder lpCharacter, uint nLength, IntPtr dwReadCoord, out uint lpNumberOfCharsRead);
+    static IntPtr FindTargetByTitle(string title)
+    {
+        var hw = FindWindow(null, title);
+        if (hw == IntPtr.Zero) return IntPtr.Zero;
+        ShowWindow(hw, SW_SHOW);
+        Thread.Sleep(80);
+        return hw;
+    }
+    static bool ClickAt(IntPtr hwnd, int col, int row, int dblMs, string outPath)
+    {
+        if (hwnd == IntPtr.Zero) { Console.WriteLine("CLICK FAILED: target window not found"); return false; }
+        if (!SetForegroundWindow(hwnd)) { Console.WriteLine("CLICK FAILED: SetForegroundWindow failed"); return false; }
+        Thread.Sleep(100);
+        RECT rc;
+        if (!GetWindowRect(hwnd, out rc)) { Console.WriteLine("CLICK FAILED: GetWindowRect failed"); return false; }
+        int gx = rc.Left, gy = rc.Top, gw = rc.Right - rc.Left, gh = rc.Bottom - rc.Top;
+        int scale = 1;
+        var si = new MSG();
+        for (int i = 0; i < 5; i++)
+        {
+            try
+            {
+                GetMessage(out si, IntPtr.Zero, 0, 0);
+                if (si.message == 0x0112) scale = GetSystemMetrics(SM_CXSCREEN) / gw;
+            }
+            catch { }
+        }
+        int totalCells = scale;
+        int cx = gx + (col > 0 ? col * 8 : 0) + 4;
+        int cy = gy + (row > 0 ? row * (16 / totalCells) : 0) + 4;
+        var inputs = new INPUT[4];
+        inputs[0].type = INPUT_MOUSE;
+        inputs[0].mi.dx = 0; inputs[0].mi.dy = 0; inputs[0].mi.dwFlags = MOUSEEVENTF_MOVE | (uint)(0x0001 & 0xFFFF);
+        inputs[1].type = INPUT_MOUSE;
+        inputs[1].mi.dx = cx; inputs[1].mi.dy = cy; inputs[1].mi.dwFlags = MOUSEEVENTF_MOVE;
+        inputs[2].type = INPUT_MOUSE;
+        inputs[2].mi.dx = 0; inputs[2].mi.dy = 0; inputs[2].mi.dwFlags = MOUSEEVENTF_LEFTDOWN;
+        inputs[3].type = INPUT_MOUSE;
+        inputs[3].mi.dx = 0; inputs[3].mi.dy = 0; inputs[3].mi.dwFlags = MOUSEEVENTF_LEFTUP;
+        if (SendInput((uint)inputs.Length, inputs, Marshal.SizeOf(typeof(INPUT))) == 0)
+        { Console.WriteLine("CLICK FAILED: SendInput down failed"); return false; }
+        Thread.Sleep(16);
+        var up2 = new INPUT[1];
+        up2[0].type = INPUT_MOUSE; up2[0].mi.dwFlags = MOUSEEVENTF_LEFTUP;
+        SendInput(1, up2, Marshal.SizeOf(typeof(INPUT)));
+        if (dblMs > 0)
+        {
+            Thread.Sleep(dblMs);
+            var down2 = new INPUT[1]; down2[0].type = INPUT_MOUSE; down2[0].mi.dwFlags = MOUSEEVENTF_LEFTDOWN | MOUSEEVENTF_LEFTUP;
+            SendInput(1, down2, Marshal.SizeOf(typeof(INPUT)));
+        }
+        if (outPath != null) File.WriteAllText(outPath, "click col=" + col + " row=" + row + " dblMs=" + dblMs + "\n", Encoding.UTF8);
+        Console.WriteLine("CLICK sent: col=" + col + " row=" + row + " dblMs=" + dblMs);
+        return true;
+    }
+    static bool SendKeysTo(IntPtr hwnd, string text, string outPath)
+    {
+        if (hwnd == IntPtr.Zero) { Console.WriteLine("KEYS FAILED: target not found"); return false; }
+        if (!SetForegroundWindow(hwnd)) { Console.WriteLine("KEYS FAILED: SetForegroundWindow failed"); return false; }
+        Thread.Sleep(100);
+        SendKeys.SendWait(text);
+        if (outPath != null) File.WriteAllText(outPath, "keys sent: " + text + "\n", Encoding.UTF8);
+        Console.WriteLine("KEYS sent: " + text);
+        return true;
+    }
+    static void Main(string[] args)
+    {
+        try
+        {
+            if (args.Length < 2) { Console.WriteLine("usage: console-helper <command> ..."); return; }
+            var cmd = args[0].ToLowerInvariant();
+            if (cmd == "dump")
+            {
+                if (args.Length < 3) { Console.WriteLine("usage: dump <pid> <outfile>"); return; }
+                Dump(int.Parse(args[1]), args[2]);
+            }
+            else if (cmd == "click")
+            {
+                if (args.Length < 6) { Console.WriteLine("usage: click <pid> <title> <col> <row> <dblMs> <outfile>"); return; }
+                var target = FindTargetByTitle(args[2]);
+                var ok = ClickAt(target, int.Parse(args[3]), int.Parse(args[4]), int.Parse(args[5]), args.Length > 6 ? args[6] : null);
+                if (!ok) Console.WriteLine("CLICK FAILED");
+            }
+            else if (cmd == "keys")
+            {
+                if (args.Length < 4) { Console.WriteLine("usage: keys <pid> <title> <text> <outfile>"); return; }
+                var target = FindTargetByTitle(args[2]);
+                var ok = SendKeysTo(target, args[3], args.Length > 4 ? args[4] : null);
+                if (!ok) Console.WriteLine("KEYS FAILED");
+            }
+            else { Console.WriteLine("unknown command: " + cmd); }
+        }
+        catch (Exception ex) { Console.WriteLine("ERROR: " + ex.ToString()); }
+    }
+    [DllImport("user32.dll")]
+    static extern bool GetMessage(out MSG lpMsg, IntPtr hWnd, uint wMinFm, uint wMaxFm);
+}
