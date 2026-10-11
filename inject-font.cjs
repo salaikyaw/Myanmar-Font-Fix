@@ -58,5 +58,6 @@ async function main(){
     await new Promise(r=>setTimeout(r,3000));
   }
   fs.writeFileSync(path.join(stateDir,app+'.json'),JSON.stringify({app,ok:false,reason:'App closed or renderer unavailable for 60 seconds',time:new Date().toISOString()}));
+  process.exitCode=1;
 }
 main().catch(()=>{process.exitCode=1});

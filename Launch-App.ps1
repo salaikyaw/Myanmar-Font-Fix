@@ -27,6 +27,23 @@ function Test-ListenerOwner($Listener,[string]$Exe,[bool]$WebView) {
   }
   return $false
 }
+function Stop-AppDaemons([object]$cfg) {
+  # Pre-existing CLI daemons (Qoder remote-control CLI, Freebuff orchestrator) survive the GUI
+  # and must be stopped so the Pyidaungsu relaunch owns a fresh renderer. Never touches GUI windows.
+  if(-not ($cfg.daemonExe -or $cfg.daemonCmd)){return}
+  $daemons=@(Get-CimInstance Win32_Process | Where-Object {($_.Name -like $cfg.daemonExe) -or ($cfg.daemonCmd -and $_.CommandLine -match $cfg.daemonCmd)})
+  # Capture names BEFORE killing: a CimInstance of a terminated process can refuse property access.
+  $names=@($daemons | ForEach-Object {[string]$_.Name} | Where-Object {$_} | Select-Object -Unique)
+  foreach($d in $daemons){try{Stop-Process -Id $d.ProcessId -Force -ErrorAction Stop}catch{}}
+  return ,@($names)
+}
+function Show-DaemonNotice($names) {
+  if(-not $names -or -not $names.Count){return}
+  $names=$names -join ', '
+  Write-Host ('Stopped CLI daemon for a clean Pyidaungsu relaunch: '+$names) -ForegroundColor Yellow
+  $notice=New-Object -ComObject WScript.Shell
+  [void]$notice.Popup(('CLI daemon stopped for Pyidaungsu relaunch: '+$names),5,'Myanmar Font Fix',64)
+}
 try {
   $catalog=Get-Content (Join-Path $PSScriptRoot 'apps.json') -Raw | ConvertFrom-Json
   $cfg=$catalog | Where-Object id -eq $App
@@ -89,7 +106,8 @@ try {
         $listener=@()
       }
     }elseif($processes.Count){throw 'Please save work, fully exit this app (including tray), then use its Pyidaungsu shortcut. No process was killed.'}
-    else {
+    if(-not $listener){
+      Show-DaemonNotice @(Stop-AppDaemons $cfg)
       # Clear any stale value first; an empty assignment removes the variable.
       $env:WORKBUDDY_REMOTE_DEBUGGING_PORT=''
       $flags="--remote-debugging-address=127.0.0.1 --remote-debugging-port=$port"
@@ -135,6 +153,8 @@ try {
   }finally{$mutex.ReleaseMutex();$mutex.Dispose()}
 }catch{
   $message=$_.Exception.Message
+  Write-Host ('Font launcher error: '+$message) -ForegroundColor Red
+  Write-Host ('At: '+$_.ScriptStackTrace) -ForegroundColor DarkGray
   @{app=$App;ok=$false;reason=$message;time=(Get-Date).ToString('o')} | ConvertTo-Json | Set-Content (Join-Path $state "$App.json") -Encoding UTF8
   $notice=New-Object -ComObject WScript.Shell
   [void]$notice.Popup($message,10,'Myanmar Font Fix',48)

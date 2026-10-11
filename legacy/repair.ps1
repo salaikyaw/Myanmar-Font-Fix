@@ -608,6 +608,7 @@ function Run-ManualSelection {
             '11' { Start-Process wscript.exe -ArgumentList ('"' + (Join-Path $PSScriptRoot 'launch-monkeycode-pyidaungsu.vbs') + '"') }
             '12' { Patch-WorkBuddy }
             '13' { & powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path (Split-Path $PSScriptRoot -Parent) 'Launch-App.ps1') -App freebuff }
+            '14' { & powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path (Split-Path $PSScriptRoot -Parent) 'Launch-App.ps1') -App qoder }
             'A' { Run-AllPatches }
         }
     }
@@ -625,6 +626,7 @@ function Run-ManualSelection {
         [pscustomobject]@{Key='11';Label='MonkeyCode Desktop (NOT IDE) - Pyidaungsu launcher'},
         [pscustomobject]@{Key='12';Label='WorkBuddyAI (runtime injection via its own debug-port env hook)'},
         [pscustomobject]@{Key='13';Label='Freebuff (Pyidaungsu via CDP debug-port injection)'},
+        [pscustomobject]@{Key='14';Label='Qoder (Pyidaungsu via CDP debug-port injection)'},
         [pscustomobject]@{Key='A';Label='Patch All Applications'},
         [pscustomobject]@{Key='M';Label='Multi-select numbers (example: 1,3,8)'},
         [pscustomobject]@{Key='B';Label='Back to Legacy menu'},
@@ -639,7 +641,7 @@ function Run-ManualSelection {
                 $multi=(Read-Host 'Numbers separated by commas (example: 1,3,8)').Trim()
                 foreach($entry in ($multi -split ',')){
                     $manual=$entry.Trim()
-                    if($manual -match '^(?:[1-9]|1[0-3])$'){Invoke-ManualChoice $manual}
+                    if($manual -match '^(?:[1-9]|1[0-4])$'){Invoke-ManualChoice $manual}
                     elseif($manual){Write-Host "Skipped invalid item: $manual" -ForegroundColor Red}
                 }
             }
