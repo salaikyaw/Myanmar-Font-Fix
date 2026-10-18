@@ -626,7 +626,7 @@ function Run-ManualSelection {
         [pscustomobject]@{Key='11';Label='MonkeyCode Desktop (NOT IDE) - Pyidaungsu launcher'},
         [pscustomobject]@{Key='12';Label='WorkBuddyAI (runtime injection via its own debug-port env hook)'},
         [pscustomobject]@{Key='13';Label='Freebuff (Pyidaungsu via CDP debug-port injection)'},
-        [pscustomobject]@{Key='14';Label='Qoder (Pyidaungsu via CDP debug-port injection)'},
+        [pscustomobject]@{Key='14';Label='Qoder (Pyidaungsu via SystemLink and settings; launches natively)'},
         [pscustomobject]@{Key='A';Label='Patch All Applications'},
         [pscustomobject]@{Key='M';Label='Multi-select numbers (example: 1,3,8)'},
         [pscustomobject]@{Key='B';Label='Back to Legacy menu'},

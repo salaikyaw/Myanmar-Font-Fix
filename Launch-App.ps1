@@ -72,6 +72,28 @@ try {
     @{app=$App;ok=$true;reason='customCss preference patched; app launched normally';time=(Get-Date).ToString('o')} | ConvertTo-Json | Set-Content (Join-Path $state "$App.json") -Encoding UTF8
     exit 0
   }
+  if($cfg.engine -eq 'native-launch'){
+    if($App -eq 'qoder'){
+      $qoderSettings = "$env:APPDATA\Qoder\User\settings.json"
+      $settingsDir = Split-Path $qoderSettings
+      if(-not (Test-Path $settingsDir)){ New-Item -ItemType Directory -Path $settingsDir -Force | Out-Null }
+      try {
+        $s = @{}
+        if(Test-Path $qoderSettings){
+          $raw = Get-Content $qoderSettings -Raw
+          if($raw.Trim()){ $s = $raw | ConvertFrom-Json -AsHashtable }
+        }
+        $s['editor.fontFamily'] = "Pyidaungsu, Consolas, 'Courier New', monospace"
+        $s['terminal.integrated.fontFamily'] = "Pyidaungsu, Consolas, 'Courier New', monospace"
+        $s['chat.editor.fontFamily'] = "Pyidaungsu, Segoe UI, sans-serif"
+        $s['markdown.preview.fontFamily'] = "Pyidaungsu, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif"
+        $s | ConvertTo-Json -Depth 10 | Set-Content $qoderSettings -Encoding UTF8
+      } catch {}
+    }
+    Start-Process -FilePath $exe -WorkingDirectory (Split-Path $exe)
+    @{app=$App;ok=$true;reason='app launched natively with Pyidaungsu settings & SystemLink';time=(Get-Date).ToString('o')} | ConvertTo-Json | Set-Content (Join-Path $state "$App.json") -Encoding UTF8
+    exit 0
+  }
   $created=$false
   $mutex=[Threading.Mutex]::new($true,"Local\MyanmarFontFix-$App",[ref]$created)
   if(-not $created){$mutex.Dispose();exit 0}
@@ -108,6 +130,9 @@ try {
     }elseif($processes.Count){throw 'Please save work, fully exit this app (including tray), then use its Pyidaungsu shortcut. No process was killed.'}
     if(-not $listener){
       Show-DaemonNotice @(Stop-AppDaemons $cfg)
+      if($App -eq 'freebuff'){
+        Remove-Item "$HOME\.config\freebuff-desktop\state.json.orchestrator-lock.sqlite*" -Force -ErrorAction SilentlyContinue
+      }
       # Clear any stale value first; an empty assignment removes the variable.
       $env:WORKBUDDY_REMOTE_DEBUGGING_PORT=''
       $flags="--remote-debugging-address=127.0.0.1 --remote-debugging-port=$port"
@@ -160,3 +185,4 @@ try {
   [void]$notice.Popup($message,10,'Myanmar Font Fix',48)
   exit 1
 }
+

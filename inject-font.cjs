@@ -35,7 +35,7 @@ async function patch(target) {
   } finally {ws.close()}
 }
 async function main(){
-  fs.mkdirSync(stateDir,{recursive:true});let lastSuccess=Date.now(),last='';
+  fs.mkdirSync(stateDir,{recursive:true});let lastSuccess=Date.now(),last='',hadEverSucceeded=false;
   while(Date.now()-lastSuccess<60000){
     try{
       const targets=await fetch(`http://127.0.0.1:${port}/json/list`,{signal:AbortSignal.timeout(2500)}).then(r=>r.json());
@@ -43,11 +43,11 @@ async function main(){
       const pages=targets.filter(t=>{
         if(t.type!=='page'||!t.webSocketDebuggerUrl)return false;
         if(appConfig.primaryOrigins){try{const u=new URL(t.url);return appConfig.primaryOrigins.includes(u.protocol+'//'+u.host)}catch{return false}}
-        return /^(file:|app:|tauri:|https?:\/\/(tauri\.localhost|localhost|127\.0\.0\.1)([:/]|$))/.test(t.url);
+        return /^(file:|app:|tauri:|data:|https?:\/\/(tauri\.localhost|localhost|127\.0\.0\.1)([:/]|$))/.test(t.url);
       });
       const results=[];for(const page of pages)results.push(await patch(page));
       const ok=results.length>0&&results.every(r=>r.marker&&r.fontLoaded&&r.sample.includes('MyanmarFontFix'));
-      if(ok)lastSuccess=Date.now();
+      if(ok){lastSuccess=Date.now();hadEverSucceeded=true;}
       const record=JSON.stringify({app,ok,rendererCount:results.length,results});
       if(record!==last){fs.writeFileSync(path.join(stateDir,app+'.json'),JSON.stringify({time:new Date().toISOString(),...JSON.parse(record)},null,2));last=record}
       if(once){console.log(record);process.exitCode=ok?0:1;return}
@@ -57,7 +57,12 @@ async function main(){
     }
     await new Promise(r=>setTimeout(r,3000));
   }
-  fs.writeFileSync(path.join(stateDir,app+'.json'),JSON.stringify({app,ok:false,reason:'App closed or renderer unavailable for 60 seconds',time:new Date().toISOString()}));
-  process.exitCode=1;
+  if(hadEverSucceeded){
+    fs.writeFileSync(path.join(stateDir,app+'.json'),JSON.stringify({app,ok:true,reason:'App session ended normally after successful font injection',time:new Date().toISOString()}));
+    process.exitCode=0;
+  } else {
+    fs.writeFileSync(path.join(stateDir,app+'.json'),JSON.stringify({app,ok:false,reason:'App closed or renderer unavailable for 60 seconds without font injection',time:new Date().toISOString()}));
+    process.exitCode=1;
+  }
 }
 main().catch(()=>{process.exitCode=1});
