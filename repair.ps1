@@ -61,7 +61,14 @@ while(-not $quit){
   'W' {Start-Process "$env:SystemRoot\System32\wscript.exe" -ArgumentList ('"'+(Join-Path $PSScriptRoot 'legacy\launch-qwen-pyidaungsu.vbs')+'"')}
   'S' {Show-Status}
   'Q' {$quit=$true;continue}
-  default { $index=0;if([int]::TryParse($choice,[ref]$index) -and $index -ge 1 -and $index -le $apps.Count){Start-Process "$env:SystemRoot\System32\wscript.exe" -ArgumentList ('"'+(Join-Path $PSScriptRoot 'Launch-App.vbs')+'" '+$apps[$index-1].id)} }
+  default {
+    $index=0
+    if([int]::TryParse($choice,[ref]$index) -and $index -ge 1 -and $index -le $apps.Count){
+      $selectedApp=$apps[$index-1]
+      Write-Host "`nLaunching $($selectedApp.name) with Pyidaungsu..." -ForegroundColor Green
+      Start-Process "$env:SystemRoot\System32\wscript.exe" -ArgumentList ('"'+(Join-Path $PSScriptRoot 'Launch-App.vbs')+'" '+$selectedApp.id)
+    }
+  }
  }
  if(-not $quit -and $showResult -and (Wait-FontMenuResult) -eq 'Quit'){$quit=$true}
 }

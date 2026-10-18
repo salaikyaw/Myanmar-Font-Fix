@@ -132,7 +132,7 @@ function Select-FontMenu {
 }
 
 function Wait-FontMenuResult {
-    param([string]$Prompt='Esc/B: back to menu   Q: quit   Enter/any other key: back to menu')
+    param([string]$Prompt='[Press Enter/any key to return to menu, or Q to quit]')
     Write-Host "`n$Prompt" -ForegroundColor Cyan
     if($Host.Name -ne 'ConsoleHost' -or [Console]::IsInputRedirected){
         $answer=("$(Read-Host 'Select')").Trim().ToUpperInvariant()

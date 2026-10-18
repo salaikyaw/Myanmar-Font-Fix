@@ -1,8 +1,6 @@
 /* Qoder (Electron + React) - Myanmar-only alias.
    The alias is listed first but only covers the Myanmar Unicode blocks, so Latin
-   text keeps falling through to Qoder's own UI face (Segoe UI / Instrument Sans).
-   Qoder 0.4.x rejects --remote-debugging-port ("bad option"), so this stylesheet is
-   inlined into out/renderer/index.html inside app.asar instead of being injected over CDP. */
+   text keeps falling through to Qoder's own UI face (Instrument Sans / Segoe UI). */
 @font-face {
   font-family: "MyanmarFontFix";
   src: local("Pyidaungsu"), local("Myanmar Text"), local("Noto Sans Myanmar");
@@ -14,6 +12,13 @@
   --qceea3f: "MyanmarFontFix", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
   --font-sans: "MyanmarFontFix", ui-sans-serif, system-ui, sans-serif !important;
   font-family: "MyanmarFontFix", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+}
+
+html, body, p, span:not([class*="icon"]), div:not([class*="icon"]),
+input, textarea, select, button, label, li, td, th, a, h1, h2, h3, h4,
+[contenteditable="true"], [role="textbox"], .typeset, .typeset * {
+  font-family: "MyanmarFontFix", "Instrument Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+  font-variant-ligatures: normal;
 }
 
 pre, pre *, code, code *, kbd, samp, .monaco-editor, .monaco-editor *, .xterm, .xterm * {

@@ -43,7 +43,7 @@ async function main(){
       const pages=targets.filter(t=>{
         if(t.type!=='page'||!t.webSocketDebuggerUrl)return false;
         if(appConfig.primaryOrigins){try{const u=new URL(t.url);return appConfig.primaryOrigins.includes(u.protocol+'//'+u.host)}catch{return false}}
-        return /^(file:|app:|tauri:|data:|https?:\/\/(tauri\.localhost|localhost|127\.0\.0\.1)([:/]|$))/.test(t.url);
+        return /^(file:|app:|tauri:|data:|qoder-app:|https?:\/\/(tauri\.localhost|localhost|127\.0\.0\.1)([:/]|$))/.test(t.url);
       });
       const results=[];for(const page of pages)results.push(await patch(page));
       const ok=results.length>0&&results.every(r=>r.marker&&r.fontLoaded&&r.sample.includes('MyanmarFontFix'));

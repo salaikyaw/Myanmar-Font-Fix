@@ -70,9 +70,12 @@
     {
         "id":  "qoder",
         "name":  "Qoder",
-        "engine":  "native-launch",
-        "exe":  "%LOCALAPPDATA%\\Qoder\\Qoder Launcher\\Qoder Launcher.exe",
-        "port":  19440
+        "engine":  "electron",
+        "exe":  "%LOCALAPPDATA%\\Programs\\Qoder\\Qoder.exe",
+        "port":  19440,
+        "primaryOrigins":  [
+                               "qoder-app://renderer"
+                           ]
     },
     {
         "id":  "mdhero",
